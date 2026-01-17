@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>上下滑动烫金生日邀请函</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- 微信专用优化 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- 禁止iOS识别电话号码 -->
+<meta name="format-detection" content="telephone=no">
+<!-- 禁止Android识别邮箱 -->
+<meta name="format-detection" content="email=no">
+<!-- 设置苹果工具栏颜色 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- QQ浏览器专用 -->
+<meta name="x5-orientation" content="portrait">
+<meta name="x5-fullscreen" content="true">
+<meta name="x5-page-mode" content="app">
+<!-- UC浏览器专用 -->
+<meta name="screen-orientation" content="portrait">
+<meta name="full-screen" content="yes">
+<meta name="browsermode" content="application">
     <style>
         * {
             margin: 0;
@@ -56,7 +73,7 @@
             width: 100%;
             max-width: 450px;
             height: 90vh;
-            background: rgba(255, 253, 248, 0.5);
+            background: rgba(255, 253, 248, 0.9);
             border-radius: 25px;
             box-shadow: 0 15px 40px rgba(139, 115, 85, 0.25),
                         0 0 0 1px rgba(212, 175, 55, 0.15);
@@ -462,30 +479,36 @@
             transform: translateX(5px);
         }
         
-        /* 滑动提示 */
-        .swipe-hint {
-            position: absolute;
+        /* 音乐控制按钮 */
+        .music-control {
+            position: fixed;
             bottom: 20px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            color: #b8941f;
-            font-size: 0.9rem;
-            z-index: 10;
-            animation: bounce 2s infinite ease-in-out;
-            opacity: 0.8;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 9999;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            transition: all 0.3s ease;
         }
         
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        .music-control:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
         }
         
-        .swipe-hint i {
-            margin-left: 5px;
+        .music-control.playing {
+            background: linear-gradient(135deg, #b8941f 0%, #9c7a1a 100%);
         }
         
-        /* 上下滑动提示 */
+        /* 滑动提示 */
         .vertical-hint {
             position: absolute;
             bottom: 20px;
@@ -545,43 +568,6 @@
             transform: translateY(20px);
         }
         
-        /* 新增：音乐控制按钮样式 */
-        .music-control {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            background: rgba(212, 175, 55, 0.8);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            z-index: 1000;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .music-control:hover {
-            background: rgba(212, 175, 55, 1);
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
-        }
-        
-        .music-control.playing {
-            animation: pulseMusic 2s infinite;
-        }
-        
-        @keyframes pulseMusic {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
         /* 响应式调整 */
         @media (max-width: 500px) {
             .invitation-container {
@@ -621,20 +607,22 @@
             }
             
             .music-control {
-                top: 15px;
-                right: 15px;
-                width: 45px;
-                height: 45px;
-                font-size: 1.3rem;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 背景音乐 -->
-    <audio id="backgroundMusic" loop preload="auto" style="display: none;">
-        <source src="https://assets.mixkit.co/music/preview/mixkit-happy-birthday-to-you-443.mp3" type="audio/mpeg">
-        <source src="https://assets.mixkit.co/music/preview/mixkit-happy-birthday-to-you-443.wav" type="audio/wav">
+    <!-- 背景图片和遮罩 -->
+    <div class="background-image"></div>
+    <div class="background-overlay"></div>
+    
+    <!-- 本地音乐播放器 -->
+    <audio id="backgroundMusic" loop>
+        <source src="音乐.mp3" type="audio/mpeg">
+        <source src="音乐.wav" type="audio/wav">
         您的浏览器不支持音频播放
     </audio>
     
@@ -643,9 +631,7 @@
         <i class="fas fa-play"></i>
     </div>
     
-    <div class="background-image"></div>
-    <div class="background-overlay"></div>
-    
+    <!-- 邀请函容器 -->
     <div class="invitation-container">
         <div class="gold-texture"></div>
         <div class="border-decoration"></div>
@@ -665,7 +651,7 @@
                         <p class="cover-subtitle">BIRTHDAY INVITATION</p>
                         <div class="cover-text">
                             诚挚邀请您参加<br>
-                            爱女的15岁生日盛宴<br>
+                            李悦然女士的生日盛宴<br>
                             共度温馨美好时光
                         </div>
                         
@@ -687,14 +673,16 @@
                         <div class="card-icon">
                             <i class="far fa-calendar-alt"></i>
                         </div>
-                        <h2 class="card-title">宴请时间</h2>
+                        <h2 class="card-title">活动时间</h2>
                         <div class="card-content">
-                            <p><strong>2026年2月8日</strong></p>
-                            <p>星期日</p>
+                            <p><strong>2023年12月2日</strong></p>
+                            <p>星期六</p>
                             <div style="margin: 25px 0; width: 100px; height: 1px; background: rgba(212, 175, 55, 0.3); margin-left: auto; margin-right: auto;"></div>
                             <p><strong>温馨午宴</strong></p>
                             <p>12:00 - 14:30</p>
-                         </div>
+                            <p><strong>生日派对</strong></p>
+                            <p>15:00 - 18:00</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -718,15 +706,17 @@
                                         <i class="fas fa-map-signs"></i>
                                     </div>
                                     <div class="map-text">
-                                        <p><strong>南湖酒家</strong></p>
-                                        <p class="map-address">大南湖社区</p>
+                                        <p><strong>悦然花园餐厅</strong></p>
+                                        <p>阳光花房宴会厅</p>
+                                        <p class="map-address">亮马桥路32号</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="card-content">
-                             <p>地点：汉寿县大南湖社区 南湖酒家 </p>
+                            <p>北京市朝阳区亮马桥路32号</p>
+                            <p>二层温馨宴会厅</p>
                             <p style="margin-top: 15px; font-size: 0.95rem; color: #b8941f;">
                                 <i class="fas fa-car" style="margin-right: 8px;"></i>免费停车服务
                             </p>
@@ -746,9 +736,9 @@
                         </div>
                         <h2 class="card-title">关于寿星</h2>
                         <div class="card-content">
-                           今天是我女儿施雯静的15岁生日，看着眼前这个亭亭玉立、眼里有光的姑娘，真不敢相信，那个当年攥着我的手指学走路、睡前缠着我讲绘本的小不点，已经长成了如今这般温柔又坚韧的模样。
+                            今天的主角是我们的李悦然女士，一个充满阳光和正能量的灵魂。她总是以温暖的笑容感染身边的每一个人，用乐观的态度面对生活的起起落落。
                             <br><br>
-                            她的善良、乐观，还有骨子里那股不服输的韧劲，一直是我和妈妈最大的骄傲。今天，爸爸想对你说：愿你永远保持这份纯粹与热爱，在未来的日子里，被世界温柔以待，勇敢去追逐所有你想要的美好。生日快乐，我的小公主！
+                            这一年，她不仅在工作中取得了骄人的成绩，更是成为了我们团队中最值得信赖的伙伴。生活中，她热爱旅行、摄影和烹饪，总能将平凡的日子过得充满诗意。
                         </div>
                     </div>
                 </div>
@@ -765,7 +755,12 @@
                         </div>
                         <h2 class="card-title">温馨提示</h2>
                         <div class="card-content">
-                       <p>• 请携带家眷，准时出席，共享欢乐时光</p>
+                            <p>• 请于11月25日前回复确认</p>
+                            <p>• 现场有惊喜礼物交换环节</p>
+                            <p>• 餐厅提供免费停车服务</p>
+                            <p>• 准备了生日蛋糕和甜点台</p>
+                            <p>• 请携带好心情，无需携带礼物</p>
+                            <p>• 请准时出席，共享欢乐时光</p>
                         </div>
                     </div>
                 </div>
@@ -782,7 +777,7 @@
                         </div>
                         <h2 class="card-title">衷心感谢</h2>
                         <div class="card-content">
-                            感谢每一位朋友的到来，你们的陪伴是给静静最好的生日礼物。
+                            感谢每一位朋友的到来，你们的陪伴是给悦然最好的生日礼物。
                             <br><br>
                             在这个特别的日子里，能与你们共享欢乐时光，是我们最珍贵的回忆。
                             <br><br>
@@ -817,67 +812,69 @@
     </div>
 
     <script>
-        // 背景音乐控制
-        const backgroundMusic = document.getElementById('backgroundMusic');
-        const musicControl = document.getElementById('musicControl');
-        let isMusicPlaying = false;
-        
-        // 设置音乐音量（0.0 - 1.0）
-        backgroundMusic.volume = 0.3;
-        
-        // 音乐控制按钮点击事件
-        musicControl.addEventListener('click', function() {
-            if (isMusicPlaying) {
-                // 暂停音乐
-                backgroundMusic.pause();
-                musicControl.classList.remove('playing');
-                musicControl.innerHTML = '<i class="fas fa-play"></i>';
-            } else {
-                // 播放音乐
-                backgroundMusic.play().then(() => {
-                    musicControl.classList.add('playing');
-                    musicControl.innerHTML = '<i class="fas fa-volume-up"></i>';
-                }).catch(error => {
-                    console.log('播放音乐失败，需要用户交互');
-                    // 如果自动播放失败，显示提示
-                    musicControl.innerHTML = '<i class="fas fa-play"></i>';
-                    alert('请点击播放按钮开始音乐');
-                });
-            }
-            isMusicPlaying = !isMusicPlaying;
-        });
-        
-        // 自动尝试播放音乐（现代浏览器需要用户交互后才能播放）
+        // 音乐控制功能
         document.addEventListener('DOMContentLoaded', function() {
-            // 延迟尝试播放
-            setTimeout(() => {
-                backgroundMusic.play().then(() => {
-                    isMusicPlaying = true;
-                    musicControl.classList.add('playing');
-                    musicControl.innerHTML = '<i class="fas fa-volume-up"></i>';
-                }).catch(error => {
-                    // 自动播放被阻止，等待用户交互
-                    console.log('等待用户交互以播放音乐');
-                    musicControl.innerHTML = '<i class="fas fa-play"></i>';
+            const music = document.getElementById('backgroundMusic');
+            const musicControl = document.getElementById('musicControl');
+            const musicIcon = musicControl.querySelector('i');
+            let isPlaying = false;
+            
+            // 设置音量（30%音量）
+            music.volume = 0.3;
+            
+            // 点击音乐控制按钮
+            musicControl.addEventListener('click', function(e) {
+                e.stopPropagation(); // 防止事件冒泡
+                
+                if (isPlaying) {
+                    // 暂停音乐
+                    music.pause();
+                    musicIcon.className = 'fas fa-play';
+                    musicControl.classList.remove('playing');
+                } else {
+                    // 播放音乐
+                    const playPromise = music.play();
                     
-                    // 当用户第一次点击任何地方时尝试播放
-                    const playOnInteraction = () => {
-                        backgroundMusic.play().then(() => {
-                            isMusicPlaying = true;
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            // 播放成功
+                            musicIcon.className = 'fas fa-pause';
                             musicControl.classList.add('playing');
-                            musicControl.innerHTML = '<i class="fas fa-volume-up"></i>';
+                            isPlaying = true;
+                        }).catch(error => {
+                            // 播放失败，提示用户
+                            console.log('播放失败:', error);
+                            alert('请先点击页面任意位置，然后再次点击音乐按钮播放');
                         });
-                        document.removeEventListener('click', playOnInteraction);
-                        document.removeEventListener('touchstart', playOnInteraction);
-                    };
-                    
-                    document.addEventListener('click', playOnInteraction);
-                    document.addEventListener('touchstart', playOnInteraction);
-                });
-            }, 1000);
+                    }
+                }
+                isPlaying = !isPlaying;
+            });
+            
+            // 监听音乐状态变化
+            music.addEventListener('play', function() {
+                isPlaying = true;
+                musicIcon.className = 'fas fa-pause';
+                musicControl.classList.add('playing');
+            });
+            
+            music.addEventListener('pause', function() {
+                isPlaying = false;
+                musicIcon.className = 'fas fa-play';
+                musicControl.classList.remove('playing');
+            });
+            
+            // 预加载音乐（当用户第一次与页面交互时）
+            document.addEventListener('click', function initMusic() {
+                music.load(); // 预加载音乐文件
+                console.log('音乐已预加载');
+                
+                // 移除事件监听，避免重复加载
+                document.removeEventListener('click', initMusic);
+            }, { once: true });
         });
         
-        // 获取DOM元素
+        // 邀请函页面滑动功能
         const pagesContainer = document.getElementById('pagesContainer');
         const pageElements = document.querySelectorAll('.page');
         const openInvitationBtn = document.getElementById('openInvitation');
@@ -967,7 +964,7 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                z-index: 100;
+                z-index: 10000;
                 animation: fadeIn 0.3s ease;
             `;
             
@@ -985,7 +982,7 @@
                         <i class="fas fa-check-circle" style="color: #d4af37; margin-right: 10px;"></i>确认成功
                     </h3>
                     <p style="color: #8b7355; line-height: 1.6; margin-bottom: 30px;">
-                        感谢您确认出席！我们已收到您的回复，期待与您一起为静静庆祝生日。<br><br>
+                        感谢您确认出席！我们已收到您的回复，期待与您一起为悦然庆祝生日。<br><br>
                         活动详情将通过短信发送给您，请注意查收。
                     </p>
                     <button id="closeModal" style="padding: 12px 30px; 
